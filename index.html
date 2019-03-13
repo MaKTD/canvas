@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<title>Canvas</title>
+	<link rel="stylesheet" type="text/css" href="css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<script type="text/javascript" src="js/jquery-3.3.1.min.js" defer></script>
+	<script type="text/javascript" src="js/app.js" defer></script>
+	<script type="text/javascript" src="js/toggle.js" defer></script>
+</head>
+<body>
+	<div class="canvas-app-container">
+		<div class="first-column">
+			<div class="tool-wrapper">
+				<button class="toolButton" id='brush'></button>
+				<button class="toolButton" id='pencel'></button>
+				<button class="toolButton" id='fill'></button>
+				<button class="toolButton" id='rubber'></button>
+			</div>
+			<div class="canv-wrapper">
+				<canvas id="canv" width="800" height="500"></canvas>
+				<div class="cordinates">
+					<p id="x"><b>x : </b> <span id="xCoord"></span></p>
+					<p id="y"><b>y : </b> <span id="yCoord"></span></p>
+				</div>
+			</div>
+		</div>
+			<div class="second-column">
+				<button class="toggle-btn"></button>
+				<div class="color-wrapper" style="display:none;">
+					<input class="add-color-but" type="color" id="color">
+					<button class="def-color-button black" style="background-color: black;"></button>
+					<button class="def-color-button grey" style="background-color: grey;"></button>
+					<button class="def-color-button silver" style="background-color: silver;"></button>
+					<button class="def-color-button maroon" style="background-color: maroon;"></button>
+					<button class="def-color-button red" style="background-color: red;"></button>
+					<button class="def-color-button orange" style="background-color: orange;"></button>
+					<button class="def-color-button yellow" style="background-color: yellow;"></button>
+					<button class="def-color-button green" style="background-color: green"></button>
+					<button class="def-color-button blue" style="background-color: blue;"></button>
+					<button class="def-color-button navy" style="background-color: navy;"></button>
+					<button class="def-color-button aqua" style="background-color: aqua;"></button>
+					<button class="def-color-button teal" style="background-color: teal;"></button>
+					<button class="def-color-button purple" style="background-color: purple;"></button>
+					<button class="def-color-button white" style="background-color: white;"></button>
+					<button class="def-color-button olive" style="background-color: olive;"></button>
+					<template class="add-color-template">
+						<button class="def-color-button"></button>
+					</template>
+				</div>
+				<div class="size-selection" style="display:none;">
+				<span class="size-selection-headline">Толшина</span>
+				<select class="canv-button" id='sizeSelect'>
+					<option>2</option>
+					<option>5</option>
+					<option>10</option>
+					<option>15</option>
+					<option>20</option>
+					<option>25</option>
+					<option>30</option>
+				</select>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
