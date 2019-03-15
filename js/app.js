@@ -54,6 +54,12 @@ var switchTool = function (button) {
 		return 'brush'
 	} else if (button.id == 'fill') {
 		return 'fill'
+	} else if (button.id == 'pencel') {
+		return 'pencel'
+	} else if (button.id == 'rubber') {
+		return 'rubber'
+	} else if (button.id == 'line') {
+		return 'line'
 	}
 };
 
@@ -81,12 +87,20 @@ var mouseActionsClick = function (evt) {
 	} 
 };
 
+
 //НЕПОСРЕДСТВЕННО РИСОВАНИЕ
 var startDraw = function (evt) {
 	if (system.currentTool == 'brush') {
 		drawLines (evt);
-	} if (system.currentTool == 'fill') {
-		floodFill(evt.offsetX, evt.offsetY, 5, 5);
+	} else if (system.currentTool == 'fill') {
+		console.log('hi');
+	} else if (system.currentTool == 'pencel') {
+		pencelLines(evt);
+	} else if (system.currentTool == 'rubber') {
+		rubber(evt);
+	} else if (system.currentTool == 'line') {
+		endLine();
+		
 	}
 };
 
@@ -104,8 +118,58 @@ var drawLines = function (evt) {
 	}
 };
 
-// Заливка
 
+var pencelLines = function (evt) {
+	let lastPointx;
+	let lastPointy;
+	canvas.onmousemove = function(evt) {
+		ctx.beginPath();
+		ctx.strokeStyle = system.currentColor;
+		ctx.lineWidth = system.brushSize;
+		ctx.moveTo(lastPointx, lastPointy);
+		ctx.lineTo(evt.offsetX, evt.offsetY);
+		ctx.stroke();
+		lastPointx = event.offsetX;
+		lastPointy = event.offsetY;
+	}
+
+};
+
+var rubber = function (evt) {
+	canvas.onmousemove = function (evt) {
+		ctx.beginPath ();
+		ctx.fillStyle = 'white';
+		ctx.arc(xCoord.innerText, yCoord.innerText, system.brushSize, 0, 360, false);
+		ctx.fill();
+	}
+}
+
+var startLine = function(evt) {
+	let arr = [xCoord.innerText, yCoord.innerText];
+	return arr
+
+
+
+
+};
+
+var endLine = function (evt) {
+	let point = startLine();
+	canvas.onclick = function (evt) {
+		console.log(point);
+		ctx.beginPath();
+		ctx.strokeStyle = system.currentColor;
+		ctx.lineWidth = system.brushSize;
+		ctx.moveTo(evt.offsetX, evt.offsetY);
+		ctx.lineTo(point[0], point[1]);
+		ctx.stroke(); 
+	}
+
+};
+
+
+// Заливка
+/**
 function floodFill(x, y, color, borderColor){
     var imageData = ctx.getImageData(0, 0, 800, 500);
     var width = imageData.width;
@@ -152,7 +216,7 @@ function floodFill(x, y, color, borderColor){
     }
     ctx.putImageData(imageData, 0, 0);
 }
-
+**/
 
 
 
@@ -161,3 +225,41 @@ doc.addEventListener ('click', mouseActionsClick); //активация клик
 colorChangeBut.addEventListener("input", addColor);
 canvas.addEventListener ('mousedown', startDraw);
 canvas.addEventListener ('mouseup', endDraw);
+
+
+
+// var ClickMode = {
+//     Paint: 0,
+//     Fill: 1
+// };
+// var mouseDown = false;
+// var currentMode = ClickMode.Paint;
+// var ctx = $('#canvas').get(0).getContext('2d');
+// ctx.lineWidth = 3;
+// var lastPoint = {x: 0, y: 0};
+
+// $('#canvas').mousedown(function(event){
+//     if (currentMode == ClickMode.Paint)
+//     {
+//         mouseDown = true;
+//         lastPoint.x = event.offsetX;
+//         lastPoint.y = event.offsetY;
+//     }
+//     else
+//         floodFill(event.offsetX, event.offsetY, 147, 147);
+//     return false;
+// }).mousemove(function(event){
+//     if (mouseDown)
+//     {
+//         ctx.beginPath();
+//         ctx.moveTo(lastPoint.x, lastPoint.y);
+//         ctx.lineTo(event.offsetX, event.offsetY);
+//         ctx.stroke();
+        
+//         lastPoint.x = event.offsetX;
+//         lastPoint.y = event.offsetY;
+//     }
+// }).mouseup(function(){
+//     mouseDown = false;
+//     return false
+// });

@@ -72,10 +72,13 @@
 	background-image: url(../img/pencel-icon.png);
 }
 #fill {
-	background-image: url(../img/bucket-icon.png)
+	background-image: url(../img/bucket-icon.png);
 }
 #rubber {
-	background-image: url(../img/rubber.png)
+	background-image: url(../img/rubber.png);
+}
+#line {
+	background-image: url(../img/line-icon.png);
 }
 
 /** second column style **/ 
