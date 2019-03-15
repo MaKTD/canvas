@@ -60,6 +60,10 @@ var switchTool = function (button) {
 		return 'rubber'
 	} else if (button.id == 'line') {
 		return 'line'
+	} else if (button.id == 'rectangle') {
+		return 'rectangle'
+	} else if (button.id == 'circle') {
+		return 'circle'
 	}
 };
 
@@ -100,7 +104,10 @@ var startDraw = function (evt) {
 		rubber(evt);
 	} else if (system.currentTool == 'line') {
 		endLine();
-		
+	} else if (system.currentTool == 'rectangle') {
+		reactangle(evt);
+	} else if (system.currentTool == 'circle') {
+		circle(evt);
 	}
 };
 
@@ -109,6 +116,7 @@ var endDraw = function (evt) {
 };
 
 
+// кисть 
 var drawLines = function (evt) {
 	canvas.onmousemove = function (evt) {
 		ctx.beginPath ();
@@ -118,7 +126,7 @@ var drawLines = function (evt) {
 	}
 };
 
-
+// карандаш
 var pencelLines = function (evt) {
 	let lastPointx;
 	let lastPointy;
@@ -135,6 +143,7 @@ var pencelLines = function (evt) {
 
 };
 
+// Резинка
 var rubber = function (evt) {
 	canvas.onmousemove = function (evt) {
 		ctx.beginPath ();
@@ -144,28 +153,59 @@ var rubber = function (evt) {
 	}
 }
 
+// прямая линия 
 var startLine = function(evt) {
 	let arr = [xCoord.innerText, yCoord.innerText];
 	return arr
-
-
-
-
 };
-
 var endLine = function (evt) {
 	let point = startLine();
 	canvas.onclick = function (evt) {
-		console.log(point);
 		ctx.beginPath();
 		ctx.strokeStyle = system.currentColor;
 		ctx.lineWidth = system.brushSize;
 		ctx.moveTo(evt.offsetX, evt.offsetY);
 		ctx.lineTo(point[0], point[1]);
-		ctx.stroke(); 
+		ctx.stroke();
+		point = [];
 	}
 
 };
+
+// прямоугольник 
+
+var reactangle = function (evt) {
+	let point = startLine();
+	canvas.onclick = function (evt) {
+		ctx.beginPath();
+		ctx.strokeStyle = system.currentColor;
+		ctx.lineWidth = system.brushSize;
+		ctx.rect(point[0], point[1], (evt.offsetX - point[0]), (evt.offsetY - point[1]));
+		ctx.stroke();
+		point = [];
+
+	}
+};
+
+// окружность 
+
+var circle = function (evt) {
+	let point = startLine();
+	canvas.onclick = function (evt) {
+		ctx.beginPath();
+		console.log(point);
+		ctx.strokeStyle = system.currentColor;
+		ctx.lineWidth = system.brushSize;
+		ctx.arc(point[0], point[1], (Math.sqrt(Math.pow((evt.offsetX - point[0]), 2) + Math.pow((evt.offsetY - point[1]), 2))) , 0, 2*Math.PI);
+		ctx.stroke();
+		point = [];
+	}
+};
+
+
+
+
+
 
 
 // Заливка

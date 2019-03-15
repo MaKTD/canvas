@@ -80,7 +80,12 @@
 #line {
 	background-image: url(../img/line-icon.png);
 }
-
+#circle {
+	background-image: url(../img/circle.png);
+}
+#rectangle {
+	background-image: url(../img/rectangle.png);
+}
 /** second column style **/ 
 
 .second-column {

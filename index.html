@@ -18,6 +18,8 @@
 				<button class="toolButton" id='fill'></button>
 				<button class="toolButton" id='rubber'></button>
 				<button class="toolButton" id='line'></button>
+				<button class="toolButton" id='rectangle'></button>
+				<button class="toolButton" id='circle'></button>
 			</div>
 			<div class="canv-wrapper">
 				<canvas id="canv" width="800" height="500"></canvas>
@@ -52,15 +54,7 @@
 				</div>
 				<div class="size-selection" style="display:none;">
 				<span class="size-selection-headline">Толшина</span>
-				<select class="canv-button" id='sizeSelect'>
-					<option>2</option>
-					<option>5</option>
-					<option>10</option>
-					<option>15</option>
-					<option>20</option>
-					<option>25</option>
-					<option>30</option>
-				</select>
+				<input type="range" name="points" min="2" max="35" id='sizeSelect' value="3">
 				</div>
 			</div>
 		</div>
