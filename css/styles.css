@@ -34,6 +34,48 @@
 }
 #y {text-transform: uppercase; color: #5b5b58;}
 
+/** save but style **/ 
+
+.saveCanvas {
+	display: block;
+	outline: none;
+	background-image: url(../img/download.png);
+	background-size: 40px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-color: transparent;
+	border: 1.5px solid #a0a09a;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+	width: 62px;
+	height: 62px;
+	position: absolute;
+	top: 0px;
+	left: -60px;
+	transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+.saveCanvas:hover {
+	transform: scale(1.1);
+	transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+	width: 59px;
+	height: 59px;
+}
+.saveCanvas:active {
+	transform: scale(1.2);
+	border: none;
+	transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease: ;
+}
+.text {
+	display: block;
+	outline: none;
+	border: 0.5px solid #a0a09a;
+	border-radius: 8px;
+	position: absolute;
+	top: 100px;
+	left: 100px;
+}
+
+
 /** tools block style **/
 
 .tool-wrapper {
@@ -55,14 +97,16 @@
 	border-top-right-radius: 10px;
 	border: 1.5px solid #a0a09a;
 	border-bottom: none;
-	outline: none;
+	transition: transform 0.3s ease;
 }
 .toolButton:hover {
 	transform: scale(1.1);
+	transition: transform 0.3s ease;
 }
 .toolButton:active {
 	transform: scale(1.2);
 	border: none;
+	transition: transform 0.3s ease;
 }
 
 #brush {
@@ -85,6 +129,9 @@
 }
 #rectangle {
 	background-image: url(../img/rectangle.png);
+}
+#txt {
+	background-image: url(../img/txt.png)
 }
 /** second column style **/ 
 

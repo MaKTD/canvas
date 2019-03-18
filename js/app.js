@@ -1,8 +1,7 @@
 var doc = document;
 
-
-
 var colorChangeBut = doc.querySelector('.add-color-but');
+var download = doc.getElementById('download');
 var templ = doc.querySelector('.add-color-template').content;
 var defaultColors = doc.getElementsByClassName('def-color-button');
 var size = doc.getElementById('sizeSelect');
@@ -64,6 +63,8 @@ var switchTool = function (button) {
 		return 'rectangle'
 	} else if (button.id == 'circle') {
 		return 'circle'
+	} else if (button.id == 'txt') {
+		return 'txt'
 	}
 };
 
@@ -87,8 +88,7 @@ var mouseActionsClick = function (evt) {
 	} else if (evt.target.classList.contains('def-color-button')) {
 		system.previousColor = system.currentColor;
 		renderSystem (system, 'currentColor', evt.target.style.backgroundColor);
-		console.log(system.currentColor);
-	} 
+	}
 };
 
 
@@ -108,6 +108,9 @@ var startDraw = function (evt) {
 		reactangle(evt);
 	} else if (system.currentTool == 'circle') {
 		circle(evt);
+	} else if (system.currentTool == 'txt') {
+		canvas.oncontextmenu = function () {return false};
+		canvasText(evt);
 	}
 };
 
@@ -173,7 +176,6 @@ var endLine = function (evt) {
 };
 
 // прямоугольник 
-
 var reactangle = function (evt) {
 	let point = startLine();
 	canvas.onclick = function (evt) {
@@ -183,12 +185,10 @@ var reactangle = function (evt) {
 		ctx.rect(point[0], point[1], (evt.offsetX - point[0]), (evt.offsetY - point[1]));
 		ctx.stroke();
 		point = [];
-
 	}
 };
 
 // окружность 
-
 var circle = function (evt) {
 	let point = startLine();
 	canvas.onclick = function (evt) {
@@ -203,8 +203,55 @@ var circle = function (evt) {
 };
 
 
+// сохранение
 
+var getImage = function (canva) {
+	let imageData = canva.toDataURL();
+	let image = new Image();
+	image.src = imageData;
+	return image
+};
+var saveImage = function(img) {
+	let link = doc.createElement("a");
+	link.setAttribute("href", img.src);
+	link.setAttribute("download", "canvasImage");
+	link.click();
+};
+var saveCanv = function () {
+	let image = getImage(canvas);
+	saveImage(image);
+};
 
+// текст 
+var txtEditorCreating = function (evt) {
+	let input = doc.createElement("input");
+	input.setAttribute('type', 'text');
+	input.classList.add('text');
+	input.setAttribute("style", "top: " + evt.offsetY + "px" + "; " + "left: " + evt.offsetX + "px" + "; " + "font:" + system.brushSize + "px " + "Arial, serif;" + "color: " + system.currentColor + ";");
+	var wrap = doc.getElementsByClassName('canv-wrapper').item(0);
+	wrap.appendChild(input);
+};
+var txtEditorDeleting = function (evt) {
+	let input = doc.getElementsByClassName('text').item(0);
+	input.remove();	
+
+};
+var canvasText = function (evt) {
+	let wind = doc.getElementsByClassName('canv-wrapper').item(0);
+	wind.oncontextmenu = function () {return false};
+	canvas.onmousedown = function (evt) {
+		if (evt.which == 3) {
+			i = false;
+			txtEditorCreating(evt);
+		} else if (evt.which == 1) {
+			input = doc.getElementsByClassName('text').item(0);
+			ctx.beginPath();
+			ctx.font = system.brushSize + "px" + " Arial";
+			ctx.fillText(input.value, evt.offsetX, evt.offsetY);
+			txtEditorDeleting(evt);
+		}
+	}
+};
 
 
 
@@ -265,6 +312,7 @@ doc.addEventListener ('click', mouseActionsClick); //активация клик
 colorChangeBut.addEventListener("input", addColor);
 canvas.addEventListener ('mousedown', startDraw);
 canvas.addEventListener ('mouseup', endDraw);
+download.addEventListener ('click', saveCanv);
 
 
 
