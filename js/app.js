@@ -97,7 +97,8 @@ var startDraw = function (evt) {
 	if (system.currentTool == 'brush') {
 		drawLines (evt);
 	} else if (system.currentTool == 'fill') {
-		console.log('hi');
+		fillPoligon(evt);
+		console.log(colorConverter(system.currentColor));
 	} else if (system.currentTool == 'pencel') {
 		pencelLines(evt);
 	} else if (system.currentTool == 'rubber') {
@@ -222,7 +223,7 @@ var saveCanv = function () {
 	saveImage(image);
 };
 
-// текст 
+// текст
 var txtEditorCreating = function (evt) {
 	let input = doc.createElement("input");
 	input.setAttribute('type', 'text');
@@ -236,74 +237,159 @@ var txtEditorDeleting = function (evt) {
 	input.remove();	
 
 };
+var textDrawing = function (evt) {
+	if (evt.which == 3) {
+		txtEditorCreating(evt);
+	} else if (evt.which == 1) {
+		input = doc.getElementsByClassName('text').item(0);
+		ctx.beginPath();
+		ctx.font = system.brushSize + "px" + " Arial";
+		ctx.fillText(input.value, evt.offsetX, evt.offsetY);
+		txtEditorDeleting(evt);
+	}
+};
 var canvasText = function (evt) {
 	let wind = doc.getElementsByClassName('canv-wrapper').item(0);
 	wind.oncontextmenu = function () {return false};
-	canvas.onmousedown = function (evt) {
-		if (evt.which == 3) {
-			i = false;
-			txtEditorCreating(evt);
-		} else if (evt.which == 1) {
-			input = doc.getElementsByClassName('text').item(0);
-			ctx.beginPath();
-			ctx.font = system.brushSize + "px" + " Arial";
-			ctx.fillText(input.value, evt.offsetX, evt.offsetY);
-			txtEditorDeleting(evt);
-		}
-	}
+	canvas.addEventListener('mousedown', textDrawing(evt));
 };
 
 
 
 // Заливка
-/**
-function floodFill(x, y, color, borderColor){
-    var imageData = ctx.getImageData(0, 0, 800, 500);
-    var width = imageData.width;
-    var height = imageData.height;
-    var stack = [[x, y]];
-    var pixel;
-    var point = 0;
-    while (stack.length > 0)
-    {   
-        pixel = stack.pop();
-        if (pixel[0] < 0 || pixel[0] >= width)
-            continue;
-        if (pixel[1] < 0 || pixel[1] >= height)
-            continue;
-        
-        // Alpha
-        point = pixel[1] * 4 * width + pixel[0] * 4 + 3;
-        
-        // Если это не рамка и ещё не закрасили
-        if (imageData.data[point] != borderColor && imageData.data[point] != color)
-        {
-            // Закрашиваем
-            imageData.data[point] = color;
-            console.log(imageData.data[point])
-            
-            // Ставим соседей в стек на проверку
-            stack.push([
-                pixel[0] - 1,
-                pixel[1]
-            ]);
-            stack.push([
-                pixel[0] + 1,
-                pixel[1]
-            ]);
-            stack.push([
-                pixel[0],
-                pixel[1] - 1
-            ]);
-            stack.push([
-                pixel[0],
-                pixel[1] + 1
-            ]);
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-}
-**/
+var getColorAtPixel = function(imageData, x, y) {
+	const {width, data} = imageData;
+	return {
+	    r: data[4 * (width * y + x) + 0],
+	    g: data[4 * (width * y + x) + 1],
+	    b: data[4 * (width * y + x) + 2],
+	    a: data[4 * (width * y + x) + 3]
+	  }
+	};
+
+var setColorAtPixel = function(imageData, color, x, y) {
+	const {width, data} = imageData;
+
+	data[4 * (width * y + x) + 0] = color.r & 0xff;
+	data[4 * (width * y + x) + 1] = color.g & 0xff;
+	data[4 * (width * y + x) + 2] = color.b & 0xff;
+	data[4 * (width * y + x) + 3] = color.a & 0xff;
+
+};
+
+var colorMatch = function(a, b) {
+	return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a
+};
+
+
+var floodFill = function(imageData, newColor, x, y) {
+	const {width, height, data} = imageData;
+	const stack = [];
+	const baseColor = getColorAtPixel(imageData, x, y);
+	let operator = {x, y};
+
+	if (colorMatch(baseColor, newColor)) {
+		return
+	}
+	stack.push({x: operator.x, y: operator.y}); // первональная точка
+
+	// берем точку
+	while (stack.length) {
+	  operator = stack.pop();
+	  let contiguousDown = true;// первональное сравнение по верху
+	  let contiguousUp = true;// первональное сравнение по верху
+	  let contiguousLeft = false;
+	  let contiguousRight = false;
+
+	// идем в смежную точку
+	while (contiguousUp && operator.y >= 0) {
+	  operator.y--;
+	  contiguousUp = colorMatch(getColorAtPixel(imageData, operator.x, operator.y), baseColor);
+	}
+
+	// идем в низ с заливкой
+	while (contiguousDown && operator.y < height) {
+	  setColorAtPixel(imageData, newColor, operator.x, operator.y);
+
+	// проверяем левые точки
+	if (operator.x - 1 >= 0 && colorMatch(getColorAtPixel(imageData, operator.x - 1, operator.y), baseColor)) {
+	  if (!contiguousLeft) {
+	    contiguousLeft = true;
+	    stack.push({x: operator.x - 1, y: operator.y}); // добавляем в стек на проверку
+	  }
+	} else {
+	  contiguousLeft = false;
+	}
+
+	// проверяем правые точки
+	if (operator.x + 1 < width && colorMatch(getColorAtPixel(imageData, operator.x + 1, operator.y), baseColor)) {
+	  if (!contiguousRight) {
+	    stack.push({x: operator.x + 1, y: operator.y}); // добавляем в стек на проверку
+	    contiguousRight = true;
+	  }
+	} else {
+	  contiguousRight = false;
+	}
+	operator.y++;
+	contiguousDown = colorMatch(getColorAtPixel(imageData, operator.x, operator.y), baseColor);
+	}
+	}
+
+};
+
+var colorConverter = function (color) {
+	if (color == "black") {
+		return {r: 0x00, g: 0x00, b: 0x00, a: 0xFF}
+	} else if (color == "grey") {
+		return {r: 0x80, g: 0x80, b: 0x80, a: 0xFF}
+	} else if (color == "silver") {
+		return {r: 192, g: 192, b: 192, a: 0xFF}
+	} else if (color == "red") {
+		return {r: 0xFF, g: 0x00, b: 0x00, a: 0xFF}
+	} else if (color == 'orange') {
+		return {r: 0xFF, g: 0x80, b: 0x00, a: 0xFF}
+	} else if (color == 'yellow') {
+		return {r: 0xFF, g: 0xFF, b: 0x00, a: 0xFF}
+	} else if (color == 'green') {
+		return {r: 0x00, g: 0xFF, b: 0x00, a: 0xFF}
+	} else if (color == 'blue') {
+		return {r: 0x00, g: 0x00, b: 0xFF, a: 0xFF}
+	} else if (color == 'navy') {
+		return {r: 0, g: 0, b: 128, a: 0xFF}
+	} else if (color == 'aqua') {
+		return {r: 0, g: 255, b: 255, a: 0xFF}
+	} else if (color == 'teal') {
+		return {r: 0, g: 128, b: 128, a: 0xFF}
+	} else if (color == 'purple') {
+		return {r: 128, g: 0, b: 128, a: 0xFF}
+	} else if (color == 'white') {
+		return {r: 255, g: 255, b: 255, a: 0xFF}
+	} else if (color == 'olive') {
+		return {r: 128, g: 128, b: 0, a: 0xFF}
+	} else if (color == 'maroon') {
+		return {r: 128, g: 0, b: 0, a: 0xFF}
+	} else {
+		var match = color.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
+		return {r: match[1], g: match[2], b: match[3], a: 0xFF}
+	}
+};
+var fillImageData = function(evt,col) {
+	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	var rect = canvas.getBoundingClientRect();
+	const x = Math.round(event.clientX - rect.left);
+	const y = Math.round(event.clientY - rect.top);
+	floodFill(imageData, col, x, y);
+	ctx.putImageData(imageData, 0, 0);
+};
+
+var fillPoligon = function (evt, color) {
+	var col = colorConverter(system.currentColor);
+	// var col = {r: 255, g: 0, b: 255, a: 0xff};
+	console.log(col);
+	canvas.addEventListener('click', fillImageData(evt, col));
+};
+
+
 
 
 
@@ -316,38 +402,4 @@ download.addEventListener ('click', saveCanv);
 
 
 
-// var ClickMode = {
-//     Paint: 0,
-//     Fill: 1
-// };
-// var mouseDown = false;
-// var currentMode = ClickMode.Paint;
-// var ctx = $('#canvas').get(0).getContext('2d');
-// ctx.lineWidth = 3;
-// var lastPoint = {x: 0, y: 0};
-
-// $('#canvas').mousedown(function(event){
-//     if (currentMode == ClickMode.Paint)
-//     {
-//         mouseDown = true;
-//         lastPoint.x = event.offsetX;
-//         lastPoint.y = event.offsetY;
-//     }
-//     else
-//         floodFill(event.offsetX, event.offsetY, 147, 147);
-//     return false;
-// }).mousemove(function(event){
-//     if (mouseDown)
-//     {
-//         ctx.beginPath();
-//         ctx.moveTo(lastPoint.x, lastPoint.y);
-//         ctx.lineTo(event.offsetX, event.offsetY);
-//         ctx.stroke();
-        
-//         lastPoint.x = event.offsetX;
-//         lastPoint.y = event.offsetY;
-//     }
-// }).mouseup(function(){
-//     mouseDown = false;
-//     return false
-// });
+ 
